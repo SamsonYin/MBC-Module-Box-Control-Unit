@@ -1,5 +1,3 @@
-
-
 //м╥нд╪Ч
 #include "stm32f10x.h"
 #include "system.h"
