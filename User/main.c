@@ -42,7 +42,7 @@ int main(void)
 //		InitShortData2();
 //		shortDataSend2[0]=0x01;
 //		USART2_Tx(shortDataSend2,shortDataLength2); 
-		Delay_ms(1000);
+		//Delay_ms(1000);
 		GPIO_SetBits(GPIOC,GPIO_Pin_13);
 		GPIO_SetBits(GPIOB,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8);
 //		InitShortData1();
@@ -52,7 +52,7 @@ int main(void)
 //		InitShortData2();
 //		shortDataSend2[0]=0x55;
 //		USART2_Tx(shortDataSend2,shortDataLength2);
-		Delay_ms(1000);
+		//Delay_ms(1000);
     }
 }
 

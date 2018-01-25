@@ -1,6 +1,6 @@
 #include "uart.h"
 
-uint8_t USARTBuffer1[9];     // The data received from MATLAB
+uint8_t USARTBuffer1[9];     // The data received from MBC
 uint8_t USARTBuffer2[7];     // The data received from MATLAB
 int USARTDataCount1;              // To count until 7 bytes are received
 int USARTDataCount2;
@@ -9,6 +9,8 @@ u8 shortDataSend2[shortDataLength2];
 
 u8 USARTDataDiscardFlag1 = 0;
 u8 USARTDataDiscardFlag2 = 0;
+
+u8 timtest = 0;
 
 void InitShortData1(void);
 void InitShortData2(void);
@@ -42,6 +44,52 @@ void TIM9_Config(void)
 	NVIC_Init(&NVIC_InitStructure);
 	
 	//TIM_Cmd(TIM9, DISABLE);
+}
+
+void TIM3_Config(void)
+{
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	NVIC_InitTypeDef   NVIC_InitStructure;
+	/* TIM3 clock enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	/* Time base configuration */
+	//APB1 runs at 36MHz, 
+	TIM_Cmd(TIM3, DISABLE);
+	TIM_TimeBaseStructure.TIM_Prescaler = 2400 - 1; 
+  TIM_TimeBaseStructure.TIM_Period = 3000 - 1;  
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //no division
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+	/* TIM IT enable */
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+	
+	/* Enable TIM3 for USART received data counting */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+	
+	TIM_Cmd(TIM3, DISABLE);
+}
+void TIM3_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+		//timtest = !timtest;
+		if(USARTDataDiscardFlag1 != 0)
+		{
+			if(!((USARTDataCount1 == 0)||(USARTDataCount1 == 9)))
+			{
+				ClearUSARTBuffer1();
+			}
+		}
+		else
+		{
+			USARTDataDiscardFlag1 = 1;
+		}
+	}
 }
 
 void TIM1_BRK_IRQHandler(void)
@@ -99,7 +147,7 @@ void USART1_Config(void)
 //	USART_ClearFlag(USART1,USART_FLAG_TC);
 	USART_Cmd(USART1,ENABLE);
 	
-	//TIM9_Config();
+	TIM3_Config();
 }
 
 void USART2_Config(void)
@@ -144,29 +192,21 @@ void USART1_IRQHandler(void)
 	if(USART_GetFlagStatus(USART1,USART_FLAG_RXNE)==SET)
 	{		
 		u8 tempBuffer=0;	
-		USART_ClearFlag(USART1,USART_FLAG_RXNE);			
-//		if((TIM9->CR1&TIM_CR1_CEN) != 0x0001)
-//		{
-//			TIM_Cmd(TIM9, ENABLE);
-//			USARTDataDiscardFlag = 0;
-//		}
+		USART_ClearFlag(USART1,USART_FLAG_RXNE);	
+		if((TIM3->CR1&TIM_CR1_CEN) != 0x0001)
+		{
+			TIM_Cmd(TIM3, ENABLE);
+			USARTDataDiscardFlag1 = 0;
+		}		
 		tempBuffer=USART_ReceiveData(USART1);
 		USARTBuffer1[USARTDataCount1] = tempBuffer;
 		USARTDataCount1++;		 
-		if (USARTDataCount1==7)
+		if (USARTDataCount1==9)
 		{  
-//			if(currentState != USART_STATE)
-//			{
-//				previousState = currentState;
-//			}
-//			else
-//			{
-//				previousState = INIT_STATE;
-//			}
-//			currentState = USART_STATE;
 			USARTDataCount1 = 0;
 			USARTDataDiscardFlag1 = 0;
-			//TIM_Cmd(TIM9, DISABLE);
+			InitShortData1();
+			TIM_Cmd(TIM3, DISABLE);
 			USART1_FunctionHandler();
 		}	
 	}
@@ -183,25 +223,11 @@ void USART2_IRQHandler(void)
 	{		
 		u8 tempBuffer=0;	
 		USART_ClearFlag(USART2,USART_FLAG_RXNE);			
-//		if((TIM9->CR1&TIM_CR1_CEN) != 0x0001)
-//		{
-//			TIM_Cmd(TIM9, ENABLE);
-//			USARTDataDiscardFlag = 0;
-//		}
 		tempBuffer=USART_ReceiveData(USART2);
 		USARTBuffer2[USARTDataCount2] = tempBuffer;
 		USARTDataCount2++;		 
 		if (USARTDataCount2==7)
 		{  
-//			if(currentState != USART_STATE)
-//			{
-//				previousState = currentState;
-//			}
-//			else
-//			{
-//				previousState = INIT_STATE;
-//			}
-//			currentState = USART_STATE;
 			USARTDataCount2 = 0;
 			USARTDataDiscardFlag2 = 0;
 			//TIM_Cmd(TIM9, DISABLE);
@@ -212,12 +238,29 @@ void USART2_IRQHandler(void)
 
 void USART1_FunctionHandler(void)
 {
-	
+//	switch(USARTBuffer1[0])
+//	{
+//		case 0:
+//		{
+//			ClearUSARTBuffer1();
+//			break;
+//		}
+//		case 255:
+//		{
+//			ClearUSARTBuffer1();
+//			break;
+//		}
+//		default:
+//		{
+			USART2_Tx(USARTBuffer1,shortDataLength2);
+			ClearUSARTBuffer1();
+//		}
+//	}
 }
 
 void USART2_FunctionHandler(void)
 {
-	
+	USART1_Tx(USARTBuffer2,shortDataLength1);
 }
 
 void InitShortData1(void)
@@ -241,13 +284,13 @@ void InitShortData2(void)
 void ClearUSARTBuffer1(void)
 {
 	u8 i;
-	for(i = 0; i < 7; i++)
+	for(i = 0; i < 9; i++)
 	{
 		USARTBuffer1[i] = 0;
 	}
 	USARTDataCount1=0;
 	USARTDataDiscardFlag1 = 0;
-	//TIM_Cmd(TIM9, DISABLE);
+	TIM_Cmd(TIM3, DISABLE);
 }
 
 void ClearUSARTBuffer2(void)
