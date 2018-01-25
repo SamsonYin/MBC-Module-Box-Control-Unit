@@ -18,6 +18,8 @@ void SysInit(void)
 	Button_Config();
 	USART1_Config();
 	USART2_Config();
+	TIM2_Config();
+	TIM4_Config();
 }
 
 void SysNVIC_Config(void)
@@ -62,6 +64,108 @@ void SysNVIC_Config(void)
 //	NVIC_Init(&NVIC_InitStructure);
 }
 
+void TIM2_Config(void)  //light too weak flashing
+{
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	NVIC_InitTypeDef   NVIC_InitStructure;
+	/* TIM2 clock enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	/* Time base configuration */
+	//AHB1 runs at 36MHz, 
+	//timer clock = 72MHz =AHB1 CLK * 2 , since AHB1 PRESC = 2 (!1)
+	TIM_Cmd(TIM2, DISABLE);
+	TIM_TimeBaseStructure.TIM_Prescaler = 8000 - 1; 
+  TIM_TimeBaseStructure.TIM_Period = 9000 - 1;  
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //no division
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	/* TIM IT enable */
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	
+	/* Enable TIM2 for flashing LED */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+}
+
+void TIM2_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+		Status_LED_normalToggle();
+	}
+}
+
+void TIM4_Config(void)  //light too strong flashing
+{
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	NVIC_InitTypeDef   NVIC_InitStructure;
+	/* TIM4 clock enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+	/* Time base configuration */
+	//AHB1 runs at 36MHz, 
+	//timer clock = 72MHz =AHB1 CLK * 2 , since AHB1 PRESC = 2 (!1)
+	TIM_Cmd(TIM4, DISABLE);
+	TIM_TimeBaseStructure.TIM_Prescaler = 16000 - 1; 
+  TIM_TimeBaseStructure.TIM_Period = 13500 - 1;  
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //no division
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+	/* TIM IT enable */
+	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
+	
+	/* Enable TIM4 for flashing LED */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+}
+
+void TIM4_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
+		Status_LED_normalToggle();
+	}
+}
+
+void Status_LED_normalOn(void)
+{
+	GPIO_SetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
+}
+
+void Status_LED_normalOff(void)
+{
+	GPIO_ResetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
+}
+
+void Status_LED_normalToggle(void)
+{
+	GPIOC->ODR ^= GPIO_Pin_13;
+	//GPIO_ToggleBits(GPIOB, GPIO_Pin_14); //should be checked when LED pin changes.
+}
+
+void NoLightErrorLEDOn(void)
+{
+	TIM_Cmd(TIM2, ENABLE);
+}
+
+void StrongLightErrorLEDOn(void)
+{
+	TIM_Cmd(TIM4, ENABLE);
+}
+
+void StopErrorFlash(void)
+{
+	TIM_Cmd(TIM2, DISABLE);
+	TIM_Cmd(TIM4, DISABLE);
+}
+
 void RCC_Config(void)
 {
 	RCC_DeInit();
@@ -90,6 +194,7 @@ void RCC_Config(void)
 	/*SYSCLK configuration*/
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 }
+
 
 void Delay_Init(u8 SYSCLK)
 {

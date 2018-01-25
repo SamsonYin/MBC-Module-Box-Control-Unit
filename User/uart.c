@@ -72,6 +72,7 @@ void TIM3_Config(void)
 	
 	TIM_Cmd(TIM3, DISABLE);
 }
+
 void TIM3_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)

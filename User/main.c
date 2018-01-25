@@ -31,10 +31,11 @@ int main(void)
 {
 	SysInit();
 	LED_Config();
+	StrongLightErrorLEDOn();
 	while (1)
 	{
-		GPIO_ResetBits(GPIOC,GPIO_Pin_13);
-		GPIO_ResetBits(GPIOB,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8);
+//		GPIO_ResetBits(GPIOC,GPIO_Pin_13);
+//		GPIO_ResetBits(GPIOB,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8);
 //		InitShortData1();
 //		shortDataSend1[0]=0x17;
 //		shortDataSend1[6]=0x11;
@@ -43,8 +44,8 @@ int main(void)
 //		shortDataSend2[0]=0x01;
 //		USART2_Tx(shortDataSend2,shortDataLength2); 
 		//Delay_ms(1000);
-		GPIO_SetBits(GPIOC,GPIO_Pin_13);
-		GPIO_SetBits(GPIOB,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8);
+//		GPIO_SetBits(GPIOC,GPIO_Pin_13);
+//		GPIO_SetBits(GPIOB,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8);
 //		InitShortData1();
 //		shortDataSend1[0]=0x88;
 //		shortDataSend1[6]=0x22;
