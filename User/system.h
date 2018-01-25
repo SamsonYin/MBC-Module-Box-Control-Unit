@@ -1,4 +1,5 @@
 #include "stm32f10x.h"
+#include "uart.h"
 
 void SysInit(void);
 

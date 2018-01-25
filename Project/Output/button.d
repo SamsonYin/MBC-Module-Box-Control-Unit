@@ -30,3 +30,4 @@
 .\output\button.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\output\button.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
 .\output\button.o: ..\User\system.h
+.\output\button.o: ..\User\uart.h

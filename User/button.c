@@ -31,21 +31,31 @@ void Button_Config(void)
 }
 
 void EXTI0_IRQHandler(void)
-{
-    Delay_ms(10); 
+{ 
   if(EXTI_GetITStatus(EXTI_Line0) != RESET)	 
 	{	  
-		
+		Delay_ms(10);
+		if(KEY0==0)
+		{
+			shortDataSend1[0]=0x17;
+			shortDataSend1[6]=0x11;
+			USART1_Tx(shortDataSend1,shortDataLength1);
+		}
 	}
 	EXTI_ClearITPendingBit(EXTI_Line0);
 }
 
 void EXTI1_IRQHandler(void)
 {
-    Delay_ms(10); 
   if(EXTI_GetITStatus(EXTI_Line1) != RESET)	 
 	{	  
-		
+		Delay_ms(10);
+		if(KEY1==0)
+		{
+			shortDataSend1[0]=0x22;
+			shortDataSend1[6]=0x33;
+			USART1_Tx(shortDataSend1,shortDataLength1);
+		}
 	}
 	EXTI_ClearITPendingBit(EXTI_Line1);
 }
