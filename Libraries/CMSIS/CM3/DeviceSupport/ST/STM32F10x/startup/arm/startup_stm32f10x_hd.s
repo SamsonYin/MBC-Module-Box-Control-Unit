@@ -197,6 +197,10 @@ SysTick_Handler PROC
                 EXPORT  SysTick_Handler            [WEAK]
                 B       .
                 ENDP
+TIM1_UP_IRQHandler PROC  
+                EXPORT  TIM1_UP_IRQHandler           [WEAK]  
+                B       .  
+                ENDP  
 
 Default_Handler PROC
 
@@ -225,7 +229,6 @@ Default_Handler PROC
                 EXPORT  CAN1_SCE_IRQHandler        [WEAK]
                 EXPORT  EXTI9_5_IRQHandler         [WEAK]
                 EXPORT  TIM1_BRK_IRQHandler        [WEAK]
-                EXPORT  TIM1_UP_IRQHandler         [WEAK]
                 EXPORT  TIM1_TRG_COM_IRQHandler    [WEAK]
                 EXPORT  TIM1_CC_IRQHandler         [WEAK]
                 EXPORT  TIM2_IRQHandler            [WEAK]
@@ -286,7 +289,6 @@ CAN1_RX1_IRQHandler
 CAN1_SCE_IRQHandler
 EXTI9_5_IRQHandler
 TIM1_BRK_IRQHandler
-TIM1_UP_IRQHandler
 TIM1_TRG_COM_IRQHandler
 TIM1_CC_IRQHandler
 TIM2_IRQHandler

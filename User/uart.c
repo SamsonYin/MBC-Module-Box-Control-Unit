@@ -93,25 +93,6 @@ void TIM3_IRQHandler(void)
 	}
 }
 
-void TIM1_BRK_IRQHandler(void)
-{
-//	if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET)
-//	{
-//		TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
-//		if(USARTDataDiscardFlag != 0)
-//		{
-//			if(!((USARTDataCount == 0)||(USARTDataCount == 7)))
-//			{
-//				ClearUSARTBuffer();
-//			}
-//		}
-//		else
-//		{
-//			USARTDataDiscardFlag = 1;
-//		}
-//	}
-}
-
 void USART1_Config(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;

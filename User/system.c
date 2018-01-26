@@ -2,8 +2,8 @@
 #include "uart.h"
 #include "button.h"
 
-static u8  fac_us=0;//usÑÓÊ±±¶³ËÊý
-static u16 fac_ms=0;
+static u8  fac_us=0;//SysTick->Load value for 1us
+static u16 fac_ms=0;//SysTick->Load value for 1ms
 
 void RCC_Config(void);
 void SysNVIC_Config(void);
@@ -14,10 +14,12 @@ void SysInit(void)
 	SystemInit();
 	RCC_Config();
 	Delay_Init(72);
+	LED_Config();
 	SysNVIC_Config();
 	Button_Config();
 	USART1_Config();
 	USART2_Config();
+	TIM1_Config();
 	TIM2_Config();
 	TIM4_Config();
 }
@@ -55,13 +57,6 @@ void SysNVIC_Config(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;			
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
 	NVIC_Init(&NVIC_InitStructure); 
-	
-	//TIM2 IR
-//	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;   //Pority 2
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//	NVIC_Init(&NVIC_InitStructure);
 }
 
 void TIM2_Config(void)  //light too weak flashing
@@ -134,6 +129,49 @@ void TIM4_IRQHandler(void)
 	}
 }
 
+void TIM1_Config(void)  //light too strong flashing
+{
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	NVIC_InitTypeDef   NVIC_InitStructure;
+	
+	/* TIM1 clock enable */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+	/* Time base configuration */
+	//AHB1 runs at 72MHz, 
+	//timer clock = 72MHz =AHB1 CLK , since AHB1 PRESC = 1 
+	TIM_Cmd(TIM1, DISABLE);
+	TIM_TimeBaseStructure.TIM_Prescaler = 4800-1; 
+  TIM_TimeBaseStructure.TIM_Period = 3000-1;  
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; //no division
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;  //Set to 0 means interrupt handler will be executed in every timer overflow event.This parameter must be set,or the interrupt handler won't be executed in every overflow event.
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+	TIM_ClearFlag(TIM1, TIM_FLAG_Update);
+	/* TIM IT enable */
+	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+	
+	/* Enable TIM1 for flashing LED */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+}
+
+void TIM1_UP_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM1, TIM_IT_Update) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+		Status_LED_normalToggle();
+	}
+}
+
+void Status_LED_FastFlashing(void)
+{
+	TIM_Cmd(TIM1, ENABLE); //Start timer1, flashing LEDs
+}
+
 void Status_LED_normalOn(void)
 {
 	GPIO_SetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
@@ -195,6 +233,26 @@ void RCC_Config(void)
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 }
 
+void LED_Config(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC , ENABLE); 						 
+//=============================================================================
+//Status_LED -> PC13
+//=============================================================================			 
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+	
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB , ENABLE);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_8;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+}
 
 void Delay_Init(u8 SYSCLK)
 {
