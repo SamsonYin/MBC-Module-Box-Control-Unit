@@ -30,3 +30,5 @@
 .\output\main.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
 .\output\main.o: ..\User\system.h
 .\output\main.o: ..\User\uart.h
+.\output\main.o: ..\User\system.h
+.\output\main.o: ..\User\uart.h

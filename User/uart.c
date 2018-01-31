@@ -10,6 +10,8 @@ u8 shortDataSend2[shortDataLength2];
 u8 USARTDataDiscardFlag1 = 0;
 u8 USARTDataDiscardFlag2 = 0;
 
+u8 gui_flag = 0;
+
 u8 timtest = 0;
 
 void InitShortData1(void);
@@ -220,29 +222,118 @@ void USART2_IRQHandler(void)
 
 void USART1_FunctionHandler(void)
 {
-//	switch(USARTBuffer1[0])
-//	{
-//		case 0:
-//		{
-//			ClearUSARTBuffer1();
-//			break;
-//		}
-//		case 255:
-//		{
-//			ClearUSARTBuffer1();
-//			break;
-//		}
-//		default:
-//		{
+	//USART2_Tx(USARTBuffer1,shortDataLength2);
+	switch(USARTBuffer1[0])
+	{
+		case USART_READ_STATUS:
+		{
+			if(USARTBuffer1[1] == 1)
+			{
+				controller_status=1;
+				Status_LED_FastFlashing();
+			}
+			else if(USARTBuffer1[1] == 2)
+			{
+				controller_status=2;
+				Status_LED_normalOn();
+			}
+			else if(USARTBuffer1[1] == 3)
+			{
+				controller_status=3;
+				NoLightErrorLEDOn();
+			}
+			else if(USARTBuffer1[1] == 4)
+			{
+				controller_status=4;
+				StrongLightErrorLEDOn();
+			}
+			else if(USARTBuffer1[1] == 5)
+			{
+				controller_status=5;
+				Status_LED_normalOn();
+			}
+			else if(USARTBuffer1[1] == 6)
+			{
+				controller_status=6;
+				Status_LED_normalOn();
+			}
+			else
+			{
+				controller_status=0;
+				StopErrorFlash();
+			}
+			if(gui_flag ==1)
+			{
+				USART2_Tx(USARTBuffer1,shortDataLength2);
+				gui_flag = 0;
+			}
+			ClearUSARTBuffer1();
+			break;
+		}
+		case USART_READ_POINT:
+		{
+			if((USARTBuffer1[1] == 2) && (USARTBuffer1[2] == 1))
+			{
+				locking_point = NULL;  //NULL
+				Null_LED_On();
+			}
+			else if((USARTBuffer1[1] == 2) && (USARTBuffer1[2] == 2))
+			{
+				locking_point = PEAK;  //Peak
+				Peak_LED_On();
+			}
+			else if((USARTBuffer1[1] == 3) && (USARTBuffer1[2] == 1))
+			{
+				locking_point = QPLUS;  //Q+
+				QPlus_LED_On();
+			}
+			else if((USARTBuffer1[1] == 3) && (USARTBuffer1[2] == 2))
+			{
+				locking_point = QMINUS;  //Q-
+				QMinus_LED_On();
+			}
+			else
+			{
+				locking_point = 0;
+				All_Point_LED_Off();
+			}
+			if(gui_flag == 1)
+			{
+				USART2_Tx(USARTBuffer1,shortDataLength2);
+				gui_flag = 0;
+			}
+			ClearUSARTBuffer1();
+			break;
+		}
+		case 0:
+		{
+			ClearUSARTBuffer1();
+			break;
+		}
+		case 255:
+		{
+			ClearUSARTBuffer1();
+			break;
+		}
+		default:
+		{
 			USART2_Tx(USARTBuffer1,shortDataLength2);
 			ClearUSARTBuffer1();
-//		}
-//	}
+		}
+	}
 }
 
 void USART2_FunctionHandler(void)
 {
 	USART1_Tx(USARTBuffer2,shortDataLength1);
+	if(USARTBuffer2[0] == USART_READ_STATUS)
+	{
+		gui_flag = 1;
+	}
+	else if(USARTBuffer2[0] == USART_READ_POINT)
+	{
+		gui_flag =1;
+	}
 }
 
 void InitShortData1(void)

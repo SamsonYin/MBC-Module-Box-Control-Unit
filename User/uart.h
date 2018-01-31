@@ -3,6 +3,7 @@
 
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
+#include "system.h"
 #define UPPER_LIMIT	1
 #define LOWER_LIMIT	2
 
@@ -11,6 +12,7 @@
 #define USART_READ_POWER			103
 #define USART_READ_BIAS			  104
 #define USART_READ_VPI				105
+#define USART_SET_MS					106
 #define USART_SET_MODE				107
 #define USART_SET_DC					108
 #define USART_SET_POLAR				109
@@ -22,11 +24,17 @@
 #define USART_PAUSE_CONTROL		115
 #define USART_RESUME_CONTROL	116
 #define USART_SET_VERSION			117
+#define USART_SET_POINT				118
 
-#define USART_READ_TWOK				150
+#define USART_READ_ONEK_TWOK	150
 #define USART_WRITE_DACRANGE	151
 #define USART_READ_DACRANGE		152
 #define USART_SET_DCDEC				153
+#define USART_READ_POINT			154
+#define USART_READ_DITHERAMP	155
+#define USART_READ_ERRORBIAS	156
+
+#define USART_MBC_VERSION     170
 
 #define USART_READ_ADCRESULT	200
 

@@ -2,8 +2,11 @@
 #include "uart.h"
 #include "button.h"
 
-static u8  fac_us=0;//SysTick->Load value for 1us
-static u16 fac_ms=0;//SysTick->Load value for 1ms
+static u8  fac_us = 0;//SysTick->Load value for 1us
+static u16 fac_ms = 0;//SysTick->Load value for 1ms
+
+u8 controller_status = 0;
+u8 locking_point = 0;
 
 void RCC_Config(void);
 void SysNVIC_Config(void);
@@ -40,7 +43,7 @@ void SysNVIC_Config(void)
 	//USART2 IR
 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;      
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =1; //Pority 0
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;    
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;    
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;     
 	NVIC_Init(&NVIC_InitStructure);
 	
@@ -169,16 +172,21 @@ void TIM1_UP_IRQHandler(void)
 
 void Status_LED_FastFlashing(void)
 {
+	StopErrorFlash();
 	TIM_Cmd(TIM1, ENABLE); //Start timer1, flashing LEDs
 }
 
 void Status_LED_normalOn(void)
 {
+	StopErrorFlash();
+	//GPIO_ResetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
 	GPIO_SetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
 }
 
 void Status_LED_normalOff(void)
 {
+	StopErrorFlash();
+	//GPIO_SetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
 	GPIO_ResetBits(GPIOC, GPIO_Pin_13); //should be checked when LED pin changes.
 }
 
@@ -190,18 +198,61 @@ void Status_LED_normalToggle(void)
 
 void NoLightErrorLEDOn(void)
 {
+	StopErrorFlash();
 	TIM_Cmd(TIM2, ENABLE);
 }
 
 void StrongLightErrorLEDOn(void)
 {
+	StopErrorFlash();
 	TIM_Cmd(TIM4, ENABLE);
 }
 
 void StopErrorFlash(void)
 {
+	TIM_Cmd(TIM1, DISABLE);
 	TIM_Cmd(TIM2, DISABLE);
 	TIM_Cmd(TIM4, DISABLE);
+}
+
+void Null_LED_On(void)
+{
+	GPIO_SetBits(GPIOB, GPIO_Pin_5);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_8);
+}
+
+void Peak_LED_On(void)
+{
+	GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+	GPIO_SetBits(GPIOB, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_8);
+}
+
+void QPlus_LED_On(void)
+{
+	GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
+	GPIO_SetBits(GPIOB, GPIO_Pin_7);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_8);
+}
+
+void QMinus_LED_On(void)
+{
+	GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
+	GPIO_SetBits(GPIOB, GPIO_Pin_8);
+}
+
+void All_Point_LED_Off(void)
+{
+	GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_8);
 }
 
 void RCC_Config(void)

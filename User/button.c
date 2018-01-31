@@ -37,9 +37,57 @@ void EXTI0_IRQHandler(void)
 		Delay_ms(10);
 		if(KEY0==0)
 		{
-			shortDataSend1[0]=0x17;
-			shortDataSend1[6]=0x11;
-			USART1_Tx(shortDataSend1,shortDataLength1);
+			switch(locking_point)
+			{
+				case NULL:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=2;
+				  shortDataSend1[2]=2;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				case PEAK:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=1;
+				  shortDataSend1[2]=1;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				case QPLUS:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=1;
+				  shortDataSend1[2]=2;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				case QMINUS:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=2;
+				  shortDataSend1[2]=1;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
 		}
 	}
 	EXTI_ClearITPendingBit(EXTI_Line0);
@@ -52,9 +100,57 @@ void EXTI1_IRQHandler(void)
 		Delay_ms(10);
 		if(KEY1==0)
 		{
-			shortDataSend1[0]=0x22;
-			shortDataSend1[6]=0x33;
-			USART1_Tx(shortDataSend1,shortDataLength1);
+			switch(locking_point)
+			{
+				case NULL:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=1;
+				  shortDataSend1[2]=2;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				case PEAK:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=2;
+				  shortDataSend1[2]=1;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				case QPLUS:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=2;
+				  shortDataSend1[2]=2;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				case QMINUS:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=1;
+				  shortDataSend1[2]=1;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
 		}
 	}
 	EXTI_ClearITPendingBit(EXTI_Line1);
