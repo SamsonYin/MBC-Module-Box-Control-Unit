@@ -34,7 +34,7 @@ void EXTI0_IRQHandler(void)
 { 
   if(EXTI_GetITStatus(EXTI_Line0) != RESET)	 
 	{	  
-		Delay_ms(10);
+		Delay_ms(30);
 		if(KEY0==0)
 		{
 			switch(locking_point)
@@ -43,14 +43,27 @@ void EXTI0_IRQHandler(void)
 				{
 					InitShortData1();
 					shortDataSend1[0]=USART_SET_POINT;
+					shortDataSend1[1]=1;
+				  shortDataSend1[2]=2;
+					USART1_Tx(shortDataSend1,shortDataLength1);
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					System_Reset();
+					break;
+				}
+				case PEAK:
+				{
+					InitShortData1();
+					shortDataSend1[0]=USART_SET_POINT;
 					shortDataSend1[1]=2;
 				  shortDataSend1[2]=2;
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
-				case PEAK:
+				case QPLUS:
 				{
 					InitShortData1();
 					shortDataSend1[0]=USART_SET_POINT;
@@ -59,17 +72,7 @@ void EXTI0_IRQHandler(void)
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
-					break;
-				}
-				case QPLUS:
-				{
-					InitShortData1();
-					shortDataSend1[0]=USART_SET_POINT;
-					shortDataSend1[1]=1;
-				  shortDataSend1[2]=2;
-					USART1_Tx(shortDataSend1,shortDataLength1);
-					All_Point_LED_Off();
-					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
 				case QMINUS:
@@ -81,6 +84,7 @@ void EXTI0_IRQHandler(void)
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
 				default:
@@ -97,7 +101,7 @@ void EXTI1_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line1) != RESET)	 
 	{	  
-		Delay_ms(10);
+		Delay_ms(30);
 		if(KEY1==0)
 		{
 			switch(locking_point)
@@ -106,22 +110,24 @@ void EXTI1_IRQHandler(void)
 				{
 					InitShortData1();
 					shortDataSend1[0]=USART_SET_POINT;
-					shortDataSend1[1]=1;
-				  shortDataSend1[2]=2;
+					shortDataSend1[1]=2;
+				  shortDataSend1[2]=1;
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
 				case PEAK:
 				{
 					InitShortData1();
 					shortDataSend1[0]=USART_SET_POINT;
-					shortDataSend1[1]=2;
+					shortDataSend1[1]=1;
 				  shortDataSend1[2]=1;
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
 				case QPLUS:
@@ -133,6 +139,7 @@ void EXTI1_IRQHandler(void)
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
 				case QMINUS:
@@ -140,10 +147,11 @@ void EXTI1_IRQHandler(void)
 					InitShortData1();
 					shortDataSend1[0]=USART_SET_POINT;
 					shortDataSend1[1]=1;
-				  shortDataSend1[2]=1;
+				  shortDataSend1[2]=2;
 					USART1_Tx(shortDataSend1,shortDataLength1);
 					All_Point_LED_Off();
 					Status_LED_FastFlashing();
+					System_Reset();
 					break;
 				}
 				default:

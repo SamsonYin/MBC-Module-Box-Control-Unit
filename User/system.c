@@ -217,16 +217,16 @@ void StopErrorFlash(void)
 
 void Null_LED_On(void)
 {
-	GPIO_SetBits(GPIOB, GPIO_Pin_5);
-	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_5);
+	GPIO_SetBits(GPIOB, GPIO_Pin_6);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_8);
 }
 
 void Peak_LED_On(void)
 {
-	GPIO_ResetBits(GPIOB, GPIO_Pin_5);
-	GPIO_SetBits(GPIOB, GPIO_Pin_6);
+	GPIO_SetBits(GPIOB, GPIO_Pin_5);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_6);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_7);
 	GPIO_ResetBits(GPIOB, GPIO_Pin_8);
 }
@@ -347,4 +347,12 @@ void Delay_us(uint32_t usTime)
 void Delay(uint32_t shortDelay)
 {
 	while (shortDelay--){};
+}
+
+void System_Reset(void)
+{
+	Delay_ms(1000);
+	__set_FAULTMASK(1);
+	NVIC_SystemReset();
+	
 }

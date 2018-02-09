@@ -85,6 +85,12 @@ void TIM3_IRQHandler(void)
 		{
 			if(!((USARTDataCount1 == 0)||(USARTDataCount1 == 9)))
 			{
+				if(USARTBuffer1[0] == 0xFF)
+				{
+					All_Point_LED_Off();
+					Status_LED_FastFlashing();
+					System_Reset();
+				}
 				ClearUSARTBuffer1();
 			}
 		}
@@ -272,15 +278,15 @@ void USART1_FunctionHandler(void)
 		}
 		case USART_READ_POINT:
 		{
-			if((USARTBuffer1[1] == 2) && (USARTBuffer1[2] == 1))
+			if((USARTBuffer1[1] == 2) && (USARTBuffer1[2] == 2))
+			{
+				locking_point = PEAK;  //PEAK
+				Peak_LED_On();
+			}
+			else if((USARTBuffer1[1] == 2) && (USARTBuffer1[2] == 1))
 			{
 				locking_point = NULL;  //NULL
 				Null_LED_On();
-			}
-			else if((USARTBuffer1[1] == 2) && (USARTBuffer1[2] == 2))
-			{
-				locking_point = PEAK;  //Peak
-				Peak_LED_On();
 			}
 			else if((USARTBuffer1[1] == 3) && (USARTBuffer1[2] == 1))
 			{

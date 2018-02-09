@@ -33,3 +33,4 @@ void Null_LED_On(void);
 void QPlus_LED_On(void);
 void QMinus_LED_On(void);
 void All_Point_LED_Off(void);
+void System_Reset(void);

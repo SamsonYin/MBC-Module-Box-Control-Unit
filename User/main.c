@@ -5,16 +5,23 @@
 int main(void)
 {
 	SysInit();
-	while (1)
+	Status_LED_FastFlashing();
+	Delay_ms(1000);
+	Delay_ms(1000);
+	Delay_ms(1000);
+	InitShortData1();
+	shortDataSend1[0]=USART_READ_POINT;
+	USART1_Tx(shortDataSend1,shortDataLength1);
+	while (1)                                                                                    
 	{
-		Delay_ms(800);
-		InitShortData1();
-		shortDataSend1[0]=112;
-		USART1_Tx(shortDataSend1,shortDataLength1);
-		Delay_ms(800);
-		InitShortData1();
-		shortDataSend1[0]=USART_READ_POINT;
-		USART1_Tx(shortDataSend1,shortDataLength1);
+		if((controller_status != 2) && (controller_status != 5) && (controller_status != 6))
+		{
+			Delay_ms(1000);
+			Delay_ms(1000);
+			Delay_ms(1000);
+			shortDataSend1[0]=112;
+			USART1_Tx(shortDataSend1,shortDataLength1);
+		}
   }
 }
 
